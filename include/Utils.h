@@ -72,6 +72,9 @@ public:
     static bool isFile(const std::string& path);
     static bool isDirectory(const std::string& path);
     static bool createDirectories(const std::string& path);
+
+    // Addition
+    static std::string trimTrailingNewlines(const std::string& str);
 };
 
 #endif // UTILS_H

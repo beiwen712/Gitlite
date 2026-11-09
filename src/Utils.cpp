@@ -335,3 +335,10 @@ bool Utils::createDirectories(const std::string& path) {
     
     return mkdir(path.c_str(), 0755) == 0 || isDirectory(path);
 }
+
+std::string Utils::trimTrailingNewlines(const std::string& str) {
+    std::string result = str;
+    while(!result.empty() && (result.back() == '\n' || result.back() == '\r'))
+        result.pop_back();
+    return result;
+}

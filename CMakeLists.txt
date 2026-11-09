@@ -7,6 +7,14 @@ project(gitlite LANGUAGES CXX)
 # 1. 在 build/ 中创建一个名称为 gitlite 的可执行目标；
 # 2. 将 main.cpp 和所有需要的实现文件加入该目标；
 # 3. 自行设置所需的 C++ 标准、头文件目录和编译选项。
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+add_executable(gitlite 
+    main.cpp 
+    ${SOURCES}
+)
+
+target_include_directories(gitlite PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
 
 # ==================== ACMOJ 配置（请勿删除）====================

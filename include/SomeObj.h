@@ -2,6 +2,7 @@
 #define SOME_OBJ_H
 
 #include <string>
+#include <map>
 
 // main.cpp 的命令门面。main.cpp 不可修改，故本类声明不可改动；
 // 请在 src/SomeObj.cpp 中实现各命令，具体逻辑建议拆分到自行设计的类中。
@@ -42,6 +43,15 @@ public:
     void diffBetween(const std::string& rev1, const std::string& rev2);// gitlite diff [revision1] [revision2]
     void show();                                                    // gitlite show
     void show(const std::string& rev);                              // gitlite show [revision]
+private:
+    std::string formatDate(long long timestamp);
+    void createTag(const std::string& tagName, const std::string& tagHash);
+    bool RestoreFileFromTree(const std::string& filename, const std::map<std::string, std::string>& tree);
+
+    bool isUntrackedInTheWay(const std::map<std::string, std::string>& currentTree, const std::map<std::string, std::string>& targetTree);
+    void deleteFilesNotInTarget(const std::map<std::string, std::string>& currentTree, const std::map<std::string, std::string>& targetTree);
+    void writeFilesWithTarget(const std::map<std::string, std::string>& targetTree);
+    void clearIndex();
 };
 
 #endif // SOME_OBJ_H
