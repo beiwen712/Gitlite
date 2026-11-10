@@ -162,27 +162,27 @@ bool Repository::IsFileIgnored(const std::string& filename) {
 }
 std::vector<std::string> Repository::getAllRefs() {
     std::vector<std::string> refs;
-
     std::string headsPath = ".gitlite/refs/heads";
+    // heads
     if(Utils::exists(headsPath)) {
         auto allfile = Utils::plainFilenamesIn(headsPath);
         for(const auto& name : allfile) {
             std::ifstream f(headsPath + "/" + name);
             std::string hash;
             if(std::getline(f, hash) && !hash.empty()) {
-                refs.push_back(hash);
+                refs.push_back(Utils::trimTrailingNewlines(hash));
             }
         }
     }
-
+    // tags
     std::string tagsPath = ".gitlite/refs/tags";
     if (Utils::exists(tagsPath)) {
-        auto allfile = Utils::plainFilenamesIn(headsPath);
+        auto allfile = Utils::plainFilenamesIn(tagsPath);
         for (const auto& name : allfile) {
-            std::ifstream f(headsPath + "/" + name);
+            std::ifstream f(tagsPath + "/" + name);
             std::string hash;
             if (std::getline(f, hash) && !hash.empty()) {
-                refs.push_back(hash);
+                refs.push_back(Utils::trimTrailingNewlines(hash));
             }
         }
     }

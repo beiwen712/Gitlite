@@ -1,13 +1,13 @@
 samples/Bonus-remote-01.in:
 command/check: global-log
 Expected:
-2a0193af8587fac761c84417923a88bc0491dee4
-e86086e9a294890462a3ed9562e95100807d4979
+d368eea7ac740be1c3c572f916bd8d33dedcd8ed
+b8268bc75d74bb7cd40da1e734b17b630af9cb66
 e1a7c92cc7386fdcffac97e348f2e5d905fc3d67
 Actual:
 ===
-commit e86086e9a294890462a3ed9562e95100807d4979
-Date: Tue Nov 10 08:08:43 2026 +0800
+commit b8268bc75d74bb7cd40da1e734b17b630af9cb66
+Date: Tue Nov 10 08:15:44 2026 +0800
 Add k in repo 2
 
 ===
@@ -20,11 +20,11 @@ Diff:
 --- expected
 +++ actual
 @@ -1,3 +1,10 @@
--2a0193af8587fac761c84417923a88bc0491dee4
--e86086e9a294890462a3ed9562e95100807d4979
+-d368eea7ac740be1c3c572f916bd8d33dedcd8ed
+-b8268bc75d74bb7cd40da1e734b17b630af9cb66
 -e1a7c92cc7386fdcffac97e348f2e5d905fc3d67+===
-+commit e86086e9a294890462a3ed9562e95100807d4979
-+Date: Tue Nov 10 08:08:43 2026 +0800
++commit b8268bc75d74bb7cd40da1e734b17b630af9cb66
++Date: Tue Nov 10 08:15:44 2026 +0800
 +Add k in repo 2
 +
 +===

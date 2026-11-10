@@ -24,23 +24,26 @@ void SomeObj::init() {
     indexFile.close();
     
     std::string emptyTreeHash = Utils::sha1("");
+    Utils::writeContents(".gitlite/objects/" + emptyTreeHash, "");
     std::string commitContent = "tree " + emptyTreeHash + "\n";
     commitContent += "time 0\n";
     commitContent += "message initial commit\n";
 
     std::string initialCommitHash = Utils::sha1(commitContent);
-    std::ofstream commitFile(".gitlite/objects/" + initialCommitHash);
-    
+/*    std::ofstream commitFile(".gitlite/objects/" + initialCommitHash);
     commitFile << commitContent;
-    commitFile.close();
+    commitFile.close();*/
+    Utils::writeContents(".gitlite/objects/" + initialCommitHash, commitContent);
 
-    std::ofstream masterFile(".gitlite/refs/heads/master");
+/*    std::ofstream masterFile(".gitlite/refs/heads/master");
     masterFile << initialCommitHash << "\n";
-    masterFile.close();
+    masterFile.close(); */
+    Utils::writeContents(".gitlite/refs/heads/master", initialCommitHash);
 
-    std::ofstream headFile(".gitlite/HEAD");
+/*    std::ofstream headFile(".gitlite/HEAD");
     headFile << "ref: refs/heads/master\n";
-    headFile.close();
+    headFile.close();*/
+    Utils::writeContents(".gitlite/HEAD", "ref: refs/heads/master");
     // TODO: 创建 .gitlite 目录、initial commit 与 master 分支
 }
 
@@ -145,7 +148,8 @@ void SomeObj::rm(const std::string& f) {
     if(inHead) {
         idx[f] = {'R', "-"};
         if(Utils::exists(f)) {
-            Utils::restrictedDelete(f);
+            //这里也不能用 restrictdelete
+            std::filesystem::remove(f);
         }
     } else if(inIndex) {
         idx.erase(f);
@@ -164,7 +168,8 @@ void SomeObj::log() {
         Utils::message("===");
         Utils::message("commit " + currentHash);
         if(c.parents.size() >= 2) {
-            Utils::message("Merge: " + c.parents[0].substr(0, 7) + " " + c.parents[1].substr(0, 7));
+            Utils::message("Merge: " + c.parents[0].substr(0, 7) + " " 
+                                     + c.parents[1].substr(0, 7));
         }
         Utils::message("Date: " + SomeObj::formatDate(c.timestamp));
         Utils::message(c.message + "\n");
@@ -219,7 +224,7 @@ void SomeObj::globalLog() {
         Utils::message("===");
         Utils::message("commit " + node.hash);
         if(node.commit.parents.size() >= 2) {
-            Utils::message("Merge: " + node.commit.parents[0].substr(0, 7)
+            Utils::message("Merge: " + node.commit.parents[0].substr(0, 7) + " "
                                      + node.commit.parents[1].substr(0, 7));
         }
         Utils::message("Date: " + SomeObj::formatDate(node.commit.timestamp));
@@ -416,7 +421,8 @@ bool SomeObj::isUntrackedInTheWay(const std::map<std::string, std::string>& curr
 void SomeObj::deleteFilesNotInTarget(const std::map<std::string, std::string>& currentTree, const std::map<std::string, std::string>& targetTree) {
     for(const auto& [filename, hash] : currentTree) {
         if(targetTree.find(filename) == targetTree.end()) {
-            Utils::restrictedDelete(filename);
+            // Utils::restrictedDelete(filename);
+            std::filesystem::remove(filename);
         }
     }
 }
