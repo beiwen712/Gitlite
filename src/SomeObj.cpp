@@ -2,6 +2,7 @@
 #include "../include/Utils.h"
 #include "../include/Commit.h"
 #include "../include/Repository.h"
+#include "../include/Lcs.h"
 #include <set>
 #include <queue>
 #include <filesystem>
@@ -678,22 +679,94 @@ void SomeObj::pull(const std::string&, const std::string&) {
 
 void SomeObj::diff() {
     // TODO: 比较当前提交与工作目录并输出差异，无差异时不输出
+    auto oldsnap = Repository::getCommitSnapshot(Repository::getCurrentCommitHash());
+    auto newsnap = Repository::getWorkDirSnapshot();
+    SomeObj::runDiff(oldsnap, newsnap, true);
 }
 
-void SomeObj::diffWithCommit(const std::string&) {
+void SomeObj::diffWithCommit(const std::string& rev) {
     // TODO: 解析 revision，比较指定提交与工作目录，无差异时不输出
+    std::string hash = Repository::resolveRevision(rev);
+    if(hash.empty()) {
+        Utils::exitWithMessage("No commit with that id exists.");
+    }
+    auto oldsnap = Repository::getCommitSnapshot(hash);
+    auto newsnap = Repository::getWorkDirSnapshot();
+    SomeObj::runDiff(oldsnap, newsnap, true);
 }
 
-void SomeObj::diffBetween(const std::string&, const std::string&) {
+void SomeObj::diffBetween(const std::string& rev1, const std::string& rev2) {
     // TODO: 解析两个 revision 并比较对应提交，无差异时不输出
+    std::string hash1 = Repository::resolveRevision(rev1);
+    std::string hash2 = Repository::resolveRevision(rev2);
+    if(hash1.empty() || hash2.empty()) {
+        Utils::exitWithMessage("No commit with that id exists.");
+    }
+    auto oldsnap = Repository::getCommitSnapshot(hash1);
+    auto newsnap = Repository::getCommitSnapshot(hash2);
+    SomeObj::runDiff(oldsnap, newsnap, false);
+}
+
+void SomeObj::runDiff(const std::map<std::string, std::string>& oldsnap,
+             const std::map<std::string, std::string>& newsnap,
+             bool isWorkDirCompare) {
+    std::set<std::string> allFiles;
+    for(const auto& [f, c] : oldsnap) allFiles.insert(f);
+    for(const auto& [f, c] : newsnap) allFiles.insert(f); 
+    for(const auto& filename : allFiles) {
+        std::string oldContent = "";
+        bool isOldNull = true;
+        if(oldsnap.count(filename)) {
+            oldContent = oldsnap.at(filename);
+            isOldNull = false;
+        }
+
+        std::string newContent = "";
+        bool isNewNull = true;
+        if(newsnap.count(filename)) {
+            newContent = newsnap.at(filename);
+            isNewNull = false;
+        }
+        // 工作区新增文件不参与比较。
+        if(isWorkDirCompare && isOldNull) {
+            continue;
+        }
+        // 完全一样
+        if(oldContent == newContent) {
+            continue ;
+        }
+        std::vector<Lcs::Edit> edits = Lcs::computeLCS(oldContent, newContent);
+        Lcs::printFileDiff(filename, edits, isOldNull, isNewNull);
+    }
 }
 
 void SomeObj::show() {
     // TODO: 显示当前提交及其相对第一父提交的差异
+    SomeObj::show(Repository::getCurrentCommitHash());
 }
 
-void SomeObj::show(const std::string&) {
+void SomeObj::show(const std::string& rev) {
     // TODO: 显示指定提交或标签及其相对第一父提交的差异
+    std::string commitHash = Repository::resolveRevision(rev);
+    if(commitHash.empty()) {
+        Utils::exitWithMessage("No commit with that id exists.");
+    }
+    Commit c = Commit::deserialize(commitHash);
+
+    Utils::message("===");
+    Utils::message("commit " + commitHash);
+    if(c.parents.size() >= 2) {
+        Utils::message("Merge: " + c.parents[0].substr(0, 7) + " " + c.parents[1].substr(0, 7));
+    }
+    Utils::message("Date: " + SomeObj::formatDate(c.timestamp));
+    Utils::message(c.message + "\n");
+
+    auto currentTree = Repository::getCommitSnapshot(commitHash);
+    std::map<std::string, std::string> parentTree;
+    if(!c.parents.empty()) {
+        parentTree = Repository::getCommitSnapshot(c.parents[0]);
+    } 
+    SomeObj::runDiff(parentTree, currentTree, false);
 }
 
 std::string SomeObj::formatDate(long long timestamp) {

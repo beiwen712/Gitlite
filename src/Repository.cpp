@@ -271,3 +271,24 @@ std::string Repository::getFileContent(const std::map<std::string, std::string>&
     std::string Content = Utils::readContentsAsString(".gitlite/objects/" + Hash);
     return Content;
 }
+
+std::map<std::string, std::string> Repository::getCommitSnapshot(const std::string& commitHash) {
+    std::map<std::string, std::string> snapshot; //[filename] [content]
+    auto tree = Repository::getTreeFromCommit(commitHash);
+    for(const auto& [filename, blobhash] : tree) {
+        std::string content = Utils::readContentsAsString(".gitlite/objects/" + blobhash);
+        snapshot[filename] = content;
+    }
+    return snapshot;
+}
+
+std::map<std::string, std::string> Repository::getWorkDirSnapshot() {
+    std::map<std::string, std::string> snapshot;
+    auto files = Utils::plainFilenamesIn(".");
+    for(const auto& f : files) {
+        if(f == ".gitlite") continue ;
+        if(!Utils::isFile(f)) continue ;
+        snapshot[f] = Utils::readContentsAsString(f);
+    }
+    return snapshot;
+}

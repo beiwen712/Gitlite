@@ -52,6 +52,9 @@ private:
     void deleteFilesNotInTarget(const std::map<std::string, std::string>& currentTree, const std::map<std::string, std::string>& targetTree);
     void writeFilesWithTarget(const std::map<std::string, std::string>& targetTree);
     void clearIndex();
+    void runDiff(const std::map<std::string, std::string>& oldsnap,
+                 const std::map<std::string, std::string>& newsnap,
+                 bool isWorkDirCompare);
 };
 
 #endif // SOME_OBJ_H

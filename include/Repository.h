@@ -32,6 +32,9 @@ public:
     static std::set<std::string> findAncestors(const std::string& commitHash);
     static std::string getSplitPoint(const std::string& currentHash, const std::string& targetHash);
     static std::string getFileContent(const std::map<std::string, std::string>& tree, const std::string filename);
+
+    static std::map<std::string, std::string> getCommitSnapshot(const std::string& commitHash);
+    static std::map<std::string, std::string> getWorkDirSnapshot();
 };
 
 #endif // REPOSITORY_H

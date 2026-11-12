@@ -342,3 +342,4 @@ std::string Utils::trimTrailingNewlines(const std::string& str) {
         result.pop_back();
     return result;
 }
+
